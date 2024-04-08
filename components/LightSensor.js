@@ -6,7 +6,7 @@ const LightSensor = () => {
     const [lightLevel, setLightLevel] = useState(0);
 
     useEffect(() => {
-        const subscription = Sensors.Light.addListener((data) => {
+        const subscription = Sensors.LightSensor.addListener((data) => {
             setLightLevel(data.illuminance);
         });
 

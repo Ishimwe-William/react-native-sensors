@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import * as Sensors from 'expo-sensors';
 
-const CompassRotation = () => {
+const Compass = () => {
     const [heading, setHeading] = useState(0);
     const [orientation, setOrientation] = useState(0);
 
@@ -55,4 +55,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CompassRotation;
+export default Compass;
