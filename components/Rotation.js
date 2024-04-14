@@ -1,58 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import * as Sensors from 'expo-sensors';
+import {StatusBar} from "expo-status-bar";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import * as ScreenOrientation from "expo-screen-orientation";
+import {useEffect, useState} from "react";
 
-const Rotation = () => {
-    const [heading, setHeading] = useState(0);
-    const [orientation, setOrientation] = useState(0);
 
+export default function Rotation() {
+    const [orientation, setOrientation] = useState(null);
     useEffect(() => {
-        const subscriptionHeading = Sensors.Magnetometer.addListener((data) => {
-            // Calculate the heading from the magnetometer data
-            const { x, y, z } = data;
-            const headingRad = Math.atan2(y, x);
-            const headingDeg = (headingRad * 180) / Math.PI + 360;
-            setHeading(headingDeg % 360);
-        });
-
-        const subscriptionOrientation = Sensors.Accelerometer.addListener((data) => {
-            // Calculate the orientation from the accelerometer data
-            const { x, y, z } = data;
-            const pitch = Math.atan2(x, Math.sqrt(y * y + z * z)) * (180 / Math.PI);
-            const roll = Math.atan2(y, z) * (180 / Math.PI);
-            setOrientation(Math.sqrt(pitch * pitch + roll * roll));
-        });
-
+        checkOrientation();
+        const subscription = ScreenOrientation.addOrientationChangeListener(
+            handleOrientationChange
+        );
         return () => {
-            subscriptionHeading.remove();
-            subscriptionOrientation.remove();
+            ScreenOrientation.removeOrientationChangeListeners(subscription);
         };
     }, []);
-
+    const checkOrientation = async () => {
+        const orientation = await ScreenOrientation.getOrientationAsync();
+        setOrientation(orientation);
+    };
+    const changeOrientation = async (newOrientation) => {
+        console.log("newOrientation: ", newOrientation);
+        await ScreenOrientation.lockAsync(newOrientation);
+    };
+    const handleOrientationChange = (o) => {
+        setOrientation(o.orientationInfo.orientation);
+    };
+    console.log(orientation);
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Compass & Rotation</Text>
-            <Text style={styles.value}>Heading: {heading.toFixed(2)} degrees</Text>
-            <Text style={styles.value}>Orientation: {orientation.toFixed(2)} degrees</Text>
+            <Text>ORIENTATION: {orientation}</Text>
+            <TouchableOpacity
+                style={[styles.btn, {marginTop: 15}]}
+                onPress={() =>
+                    changeOrientation(ScreenOrientation.OrientationLock.PORTRAIT_UP)
+                }
+            >
+                <Text style={styles.txt}>Tap to Portrait orientation</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.btn}
+                onPress={() =>
+                    changeOrientation(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT)
+                }
+            >
+                <Text style={styles.txt}>Tap to Landscape orientation</Text>
+            </TouchableOpacity>
+            <StatusBar style="auto"/>
         </View>
     );
-};
-
+}
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: "#fff",
+        alignItems: "center",
+        justifyContent: "center",
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
+    btn: {
+        padding: 10,
     },
-    value: {
-        fontSize: 18,
-        marginVertical: 10,
+    txt: {
+        fontSize: 16,
+        color: "blue",
     },
 });
-
-export default Rotation;
