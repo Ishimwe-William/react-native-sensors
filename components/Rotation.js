@@ -1,11 +1,11 @@
-import {StatusBar} from "expo-status-bar";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
-import {useEffect, useState} from "react";
-
+import { useEffect, useState } from "react";
 
 export default function Rotation() {
     const [orientation, setOrientation] = useState(null);
+
     useEffect(() => {
         checkOrientation();
         const subscription = ScreenOrientation.addOrientationChangeListener(
@@ -15,41 +15,43 @@ export default function Rotation() {
             ScreenOrientation.removeOrientationChangeListeners(subscription);
         };
     }, []);
+
     const checkOrientation = async () => {
         const orientation = await ScreenOrientation.getOrientationAsync();
         setOrientation(orientation);
     };
-    const changeOrientation = async (newOrientation) => {
-        console.log("newOrientation: ", newOrientation);
-        await ScreenOrientation.lockAsync(newOrientation);
+
+    const changeOrientation = async () => {
+        if (orientation === 1 || orientation === 2) {
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+        } else {
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+        }
     };
+
     const handleOrientationChange = (o) => {
         setOrientation(o.orientationInfo.orientation);
     };
+
     console.log(orientation);
     return (
         <View style={styles.container}>
             <Text>ORIENTATION: {orientation}</Text>
             <TouchableOpacity
-                style={[styles.btn, {marginTop: 15}]}
-                onPress={() =>
-                    changeOrientation(ScreenOrientation.OrientationLock.PORTRAIT_UP)
-                }
+                style={[styles.btn, { marginTop: 15 }]}
+                onPress={() => changeOrientation()}
             >
-                <Text style={styles.txt}>Tap to Portrait orientation</Text>
+                <Text style={styles.txt}>
+                    {orientation === 1 || orientation === 2
+                        ? "Tap to Landscape orientation"
+                        : "Tap to Portrait orientation"}
+                </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-                style={styles.btn}
-                onPress={() =>
-                    changeOrientation(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT)
-                }
-            >
-                <Text style={styles.txt}>Tap to Landscape orientation</Text>
-            </TouchableOpacity>
-            <StatusBar style="auto"/>
+            <StatusBar style="auto" />
         </View>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
