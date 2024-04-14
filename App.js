@@ -13,7 +13,11 @@ const Tab = createBottomTabNavigator();
 const App = () => {
     return (
         <NavigationContainer>
-            <Tab.Navigator>
+            <Tab.Navigator
+            screenOptions={{
+                tabBarActiveTintColor:'tomato',
+            }}
+            >
                 <Tab.Screen
                     name="Step Counter"
                     component={StepCounter}

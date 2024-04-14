@@ -4,10 +4,13 @@ import * as Sensors from 'expo-sensors';
 
 const LightSensor = () => {
     const [lightLevel, setLightLevel] = useState(0);
+    const [isScreenCovered, setIsScreenCovered] = useState(false);
+    const SCREEN_COVER_THRESHOLD = 10; // Adjust this value as needed
 
     useEffect(() => {
         const subscription = Sensors.LightSensor.addListener((data) => {
             setLightLevel(data.illuminance);
+            checkScreenCover(data.illuminance);
         });
 
         return () => {
@@ -15,12 +18,21 @@ const LightSensor = () => {
         };
     }, []);
 
+    const checkScreenCover = (illuminance) => {
+        if (illuminance <= SCREEN_COVER_THRESHOLD) {
+            setIsScreenCovered(true);
+        } else {
+            setIsScreenCovered(false);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Light Sensor</Text>
             <Text style={styles.lightLevel}>
-                Light level: {lightLevel.toFixed(2)} lux
+                Light level: {isScreenCovered ? 'Screen covered' : lightLevel.toFixed(2) + ' lux'}
             </Text>
+            <Text style={styles.threshold}>Screen is covered below {SCREEN_COVER_THRESHOLD} lux!</Text>
         </View>
     );
 };
@@ -38,6 +50,11 @@ const styles = StyleSheet.create({
     },
     lightLevel: {
         fontSize: 18,
+    },
+    threshold: {
+        fontSize: 12,
+        marginTop: 10,
+        fontStyle:'italic',
     },
 });
 
