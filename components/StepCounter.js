@@ -4,14 +4,17 @@ import * as Pedometer from 'expo-sensors';
 
 const StepCounter = () => {
     const [steps, setSteps] = useState(0);
-    const strideLength = 0.76; // Assume average stride length in meters
+    const strideLength = 0.76;
     const [distance, setDistance] = useState(0);
+    const [isStarted, setIsStarted] = useState(false);
 
     useEffect(() => {
         const subscription = Pedometer.Pedometer.watchStepCount((result) => {
-            if (result.steps === 1) {
-                setSteps(0);
-            } else {
+            if (!isStarted && result.steps > 50) {
+                setIsStarted(true);
+            }
+
+            if (isStarted) {
                 setSteps(result.steps);
                 calculateDistance(result.steps);
             }
@@ -20,11 +23,11 @@ const StepCounter = () => {
         return () => {
             subscription.remove();
         };
-    }, []);
+    }, [isStarted]);
 
     const calculateDistance = stepCount => {
         const walkedDistance = stepCount * strideLength;
-        setDistance(walkedDistance.toFixed(2)); // Round to two decimal places
+        setDistance(walkedDistance.toFixed(2));
     };
 
     return (
@@ -59,7 +62,7 @@ const styles = StyleSheet.create({
     strideLen: {
         fontSize: 12,
         marginTop: 10,
-        fontStyle:'italic',
+        fontStyle: 'italic',
     },
 });
 

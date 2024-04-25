@@ -1,56 +1,70 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialCommunity from '@expo/vector-icons/MaterialCommunityIcons';
 import {NavigationContainer} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import StepCounter from './components/StepCounter';
 import GPSTracker from './components/GPSTracker';
 import LightSensor from './components/LightSensor';
 import Compass from './components/Compass';
 import Rotation from "./components/Rotation";
+import {createMaterialTopTabNavigator} from "@react-navigation/material-top-tabs";
 
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialTopTabNavigator();
 
 const App = () => {
     return (
         <NavigationContainer>
             <Tab.Navigator
+            tabBarPosition="bottom"
             screenOptions={{
-                tabBarActiveTintColor:'tomato',
+                tabBarShowLabel: false,
+                headerShown: false,
+                tabBarActiveTintColor: "tomato",
+                tabBarInactiveTintColor: "gray",
+                tabBarIndicatorStyle: {
+                    height: 1,
+                    backgroundColor: "tomato",
+                },
+                tabBarStyle: {
+                    height: '10%',
+                    borderTopWidth: 0.2,
+                    borderColor: "tomato",
+                },
             }}
             >
                 <Tab.Screen
                     name="Step Counter"
                     component={StepCounter}
                     options={{
-                        tabBarIcon: ({color}) => <FontAwesome size={28} name="blind" color={color}/>,
+                        tabBarIcon: ({color}) => <MaterialCommunity size={26} name="walk" color={color}/>,
                     }}
                 />
                 <Tab.Screen
                     name="GPS Tracker"
                     component={GPSTracker}
                     options={{
-                        tabBarIcon: ({color}) => <FontAwesome size={28} name="globe" color={color}/>,
+                        tabBarIcon: ({color}) => <MaterialCommunity size={26} name="google-maps" color={color}/>,
                     }}
                 />
                 <Tab.Screen
                     name="Light Sensor"
                     component={LightSensor}
                     options={{
-                        tabBarIcon: ({color}) => <FontAwesome size={28} name="bolt" color={color}/>,
+                        tabBarIcon: ({color}) => <MaterialCommunity size={26} name="track-light" color={color}/>,
                     }}
                 />
                 <Tab.Screen
                     name="Compass"
                     component={Compass}
                     options={{
-                        tabBarIcon: ({color}) => <FontAwesome size={28} name="compass" color={color}/>,
+                        tabBarIcon: ({color}) => <FontAwesome size={26} name="compass" color={color}/>,
                     }}
                 />
                 <Tab.Screen
                     name="Rotation"
                     component={Rotation}
                     options={{
-                        tabBarIcon: ({color}) => <FontAwesome size={28} name="retweet" color={color}/>,
+                        tabBarIcon: ({color}) => <MaterialCommunity size={24} name="phone-rotate-portrait" color={color}/>,
                     }}
                 />
             </Tab.Navigator>

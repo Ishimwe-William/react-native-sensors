@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: '10%',
     },
     title: {
         fontSize: 24,

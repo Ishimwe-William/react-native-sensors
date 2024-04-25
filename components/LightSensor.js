@@ -1,30 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import * as Brightness from 'expo-brightness';
 import * as Sensors from 'expo-sensors';
+import {useIsFocused} from '@react-navigation/native';
+
 
 const LightSensor = () => {
     const [lightLevel, setLightLevel] = useState(0);
     const [isScreenCovered, setIsScreenCovered] = useState(false);
-    const SCREEN_COVER_THRESHOLD = 10; // Adjust this value as needed
+    const isFocused = useIsFocused();
+    const SCREEN_COVER_THRESHOLD = 30;
+    const currentBrightnessRef = useRef();
 
     useEffect(() => {
-        const subscription = Sensors.LightSensor.addListener((data) => {
-            setLightLevel(data.illuminance);
-            checkScreenCover(data.illuminance);
-        });
-
-        return () => {
-            subscription.remove();
+        const fetchBrightness = async () => {
+            try {
+                currentBrightnessRef.current = await Brightness.getBrightnessAsync();
+            } catch (error) {
+                console.error('Error fetching brightness:', error);
+            }
         };
-    }, []);
 
-    const checkScreenCover = (illuminance) => {
-        if (illuminance <= SCREEN_COVER_THRESHOLD) {
+        fetchBrightness();
+    }, [isFocused]);
+
+    useEffect(() => {
+        if (isFocused) {
+            const subscription = Sensors.LightSensor.addListener((data) => {
+                setLightLevel(data.illuminance);
+                checkScreenCover(data.illuminance);
+            });
+
+            return () => {
+                subscription.remove();
+            };
+        }
+    }, [isFocused]);
+
+    const checkScreenCover = async (illuminance) => {
+        if (illuminance <= SCREEN_COVER_THRESHOLD && isFocused) {
             setIsScreenCovered(true);
-        } else {
-            setIsScreenCovered(false);
+            await turnOffScreen();
+            return;
+        }
+        setIsScreenCovered(false);
+        await restoreBrightness()
+    };
+
+    const restoreBrightness = async () => {
+        if (currentBrightnessRef.current !== undefined) {
+            try {
+                await Brightness.setSystemBrightnessAsync(currentBrightnessRef.current);
+            } catch (error) {
+                console.error('Error setting brightness:', error);
+            }
         }
     };
+
+    const turnOffScreen = async () => {
+        try {
+            await Brightness.setSystemBrightnessAsync(0);
+        } catch (error) {
+            console.error('Error turning off screen:', error);
+        }
+    };
+
 
     return (
         <View style={styles.container}>
@@ -54,7 +94,7 @@ const styles = StyleSheet.create({
     threshold: {
         fontSize: 12,
         marginTop: 10,
-        fontStyle:'italic',
+        fontStyle: 'italic',
     },
 });
 

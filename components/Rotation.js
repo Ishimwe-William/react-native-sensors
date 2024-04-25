@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useEffect, useState } from "react";
+import { WebView } from 'react-native-webview';
 
 export default function Rotation() {
     const [orientation, setOrientation] = useState(null);
@@ -35,8 +36,13 @@ export default function Rotation() {
 
     console.log(orientation);
     return (
-        <View style={styles.container}>
-            <Text>ORIENTATION: {orientation}</Text>
+        <View style={{ flex: 1, marginTop: '10%', }}>
+            <Text style={[styles.txt,{color: '#000', padding: 5}]}>ORIENTATION: {orientation}</Text>
+            <WebView
+                source={{ uri: 'https://www.youtube.com/watch?v=OGwwX7Oe7xc' }}
+                style={{ flex: 1 }}
+                allowsFullscreenVideo={true}
+            />
             <TouchableOpacity
                 style={[styles.btn, { marginTop: 15 }]}
                 onPress={() => changeOrientation()}
@@ -65,5 +71,6 @@ const styles = StyleSheet.create({
     txt: {
         fontSize: 16,
         color: "blue",
+        textAlign: "center",
     },
 });

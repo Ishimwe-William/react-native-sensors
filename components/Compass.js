@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, Text, View, Dimensions, Image} from 'react-native';
 import * as Sensors from 'expo-sensors';
 
 const Compass = () => {
@@ -9,7 +9,7 @@ const Compass = () => {
     useEffect(() => {
         const subscriptionHeading = Sensors.Magnetometer.addListener((data) => {
             // Calculate the heading from the magnetometer data
-            const { x, y } = data;
+            const {x, y} = data;
             const headingRad = Math.atan2(y, x);
             let headingDeg = (headingRad * 180) / Math.PI + 360;
             setHeading(headingDeg % 360);
@@ -41,18 +41,18 @@ const Compass = () => {
                     style={[
                         styles.needle,
                         {
-                            transform: [{ rotateZ: `${needleRotation}deg` }],
+                            transform: [{rotateZ: `${needleRotation}deg`}],
                         },
                     ]}
                 />
-                <View style={styles.compassBackground} />
+                <View style={styles.compassBackground}/>
             </View>
             <Text style={styles.value}>Heading: {heading.toFixed(2)} degrees</Text>
         </View>
     );
 };
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const compassSize = width * 0.8;
 
 const styles = StyleSheet.create({
@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: '10%',
     },
     title: {
         fontSize: 24,
