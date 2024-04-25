@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import * as Brightness from 'expo-brightness';
 import * as Sensors from 'expo-sensors';
-import NeedleGraph from "./assets/NeedleGraph";
+import {LightGraph} from "./assets/NeedleGraph";
 import SendLocalNotification from "./assets/LocalNotification";
 
 const LightSensor = () => {
@@ -69,7 +69,7 @@ const LightSensor = () => {
 
     return (
         <View style={styles.container}>
-            <NeedleGraph lightLevel={lightLevel}/>
+            <LightGraph lightLevel={lightLevel}/>
             <Text style={styles.lightLevel}>
                 {isScreenCovered ? 'Screen covered' :
                     <>

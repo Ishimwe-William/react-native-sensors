@@ -1,8 +1,13 @@
+/**
+ * <h3>AnimatedCircularProgress</h3> taken from:
+ * <b>https://www.npmjs.com/package/react-native-circular-progress
+ **/
+
 import React from 'react';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {StyleSheet, Text} from "react-native";
 
-const NeedleGraph = ({lightLevel}) => {
+export const LightGraph = ({lightLevel}) => {
     const percentage = (lightLevel / 1000) * 100;
 
     return (
@@ -44,4 +49,3 @@ const styles = StyleSheet.create({
     },
 });
 
-export default NeedleGraph;
