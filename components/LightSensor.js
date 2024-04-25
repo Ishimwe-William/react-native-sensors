@@ -2,13 +2,12 @@ import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import * as Brightness from 'expo-brightness';
 import * as Sensors from 'expo-sensors';
-import {useIsFocused} from '@react-navigation/native';
-
+import NeedleGraph from "./assets/NeedleGraph";
+import SendLocalNotification from "./assets/LocalNotification";
 
 const LightSensor = () => {
     const [lightLevel, setLightLevel] = useState(0);
     const [isScreenCovered, setIsScreenCovered] = useState(false);
-    const isFocused = useIsFocused();
     const SCREEN_COVER_THRESHOLD = 30;
     const currentBrightnessRef = useRef();
 
@@ -22,26 +21,29 @@ const LightSensor = () => {
         };
 
         fetchBrightness();
-    }, [isFocused]);
+    }, []);
 
     useEffect(() => {
-        if (isFocused) {
-            const subscription = Sensors.LightSensor.addListener((data) => {
-                setLightLevel(data.illuminance);
-                checkScreenCover(data.illuminance);
-            });
+        const subscription = Sensors.LightSensor.addListener((data) => {
+            setLightLevel(data.illuminance);
+            checkScreenCover(data.illuminance);
+        });
 
-            return () => {
-                subscription.remove();
-            };
-        }
-    }, [isFocused]);
+        return () => {
+            subscription.remove();
+        };
+    }, []);
 
     const checkScreenCover = async (illuminance) => {
-        if (illuminance <= SCREEN_COVER_THRESHOLD && isFocused) {
+        if (illuminance <= SCREEN_COVER_THRESHOLD) {
             setIsScreenCovered(true);
             await turnOffScreen();
             return;
+        }
+        if (illuminance > 800 && illuminance < 1000) {
+            do {
+                await SendLocalNotification('Data from light sensor', 'The environment is too bright.');
+            } while (illuminance < 800);
         }
         setIsScreenCovered(false);
         await restoreBrightness()
@@ -65,14 +67,16 @@ const LightSensor = () => {
         }
     };
 
-
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Light Sensor</Text>
+            <NeedleGraph lightLevel={lightLevel}/>
             <Text style={styles.lightLevel}>
-                Light level: {isScreenCovered ? 'Screen covered' : lightLevel.toFixed(2) + ' lux'}
+                {isScreenCovered ? 'Screen covered' :
+                    <>
+                        <Text style={styles.threshold}>Screen is covered below {SCREEN_COVER_THRESHOLD} lux!</Text>
+                    </>
+                }
             </Text>
-            <Text style={styles.threshold}>Screen is covered below {SCREEN_COVER_THRESHOLD} lux!</Text>
         </View>
     );
 };
