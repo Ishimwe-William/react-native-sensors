@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Alert, Button} from 'react-native';
 import * as Brightness from 'expo-brightness';
 import * as Sensors from 'expo-sensors';
 import {LightGraph} from "./assets/NeedleGraph";
-import SendLocalNotification from "./assets/LocalNotification";
+import {SendLocalNotification} from "./assets/LocalNotification";
 
 const LightSensor = () => {
     const [lightLevel, setLightLevel] = useState(0);
@@ -12,16 +12,26 @@ const LightSensor = () => {
     const currentBrightnessRef = useRef();
 
     useEffect(() => {
-        const fetchBrightness = async () => {
-            try {
-                currentBrightnessRef.current = await Brightness.getBrightnessAsync();
-            } catch (error) {
-                console.error('Error fetching brightness:', error);
+        const requestPermissions = async () => {
+            const {status} = await Brightness.requestPermissionsAsync();
+
+            if (status !== 'granted') {
+                Alert.alert('Permission Error', 'Please grant permission to access brightness and sensors.');
+            } else {
+                await fetchBrightness();
             }
         };
 
-        fetchBrightness();
+        requestPermissions();
     }, []);
+
+    const fetchBrightness = async () => {
+        try {
+            currentBrightnessRef.current = await Brightness.getBrightnessAsync();
+        } catch (error) {
+            console.error('Error fetching brightness:', error);
+        }
+    };
 
     useEffect(() => {
         const subscription = Sensors.LightSensor.addListener((data) => {
