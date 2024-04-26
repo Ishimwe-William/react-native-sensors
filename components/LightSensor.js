@@ -11,6 +11,7 @@ const LightSensor = () => {
     const [isScreenCovered, setIsScreenCovered] = useState(false);
     const [notificationSent, setNotificationSent] = useState(false);
     const SCREEN_COVER_THRESHOLD = 10;
+    const BRIGHTNESS_THRESHOLD = 5000;
     const isFocused = useIsFocused();
     const currentBrightnessRef = useRef();
     const debounceTimerRef = useRef(null);
@@ -66,7 +67,7 @@ const LightSensor = () => {
 
 
     const manageNotifications = () => {
-        if (lightLevel > 300 && !notificationSent) {
+        if (lightLevel > BRIGHTNESS_THRESHOLD && !notificationSent) {
             debounceNotification();
         }
     }
