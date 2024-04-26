@@ -28,7 +28,7 @@ export const LightGraph = ({lightLevel}) => {
                         <Text style={{fontSize: 44, margin: 35, fontFamily: 'sans-serif-light'}}>
                             {percentage ? percentage.toFixed(2) : 0}%
                         </Text>
-                        <Text>Range: 0 - 30,000 </Text>
+                        <Text>Range: [0 - 30,000] lux </Text>
                         <Text style={styles.lightLevel}>
                             Light level: {lightLevel.toFixed(2) + ' lux'}
                         </Text>

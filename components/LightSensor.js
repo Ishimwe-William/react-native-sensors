@@ -25,9 +25,36 @@ const LightSensor = () => {
                 await fetchBrightness();
             }
         };
-
         requestPermissions();
     }, []);
+
+    useEffect(() => {
+        const subscription = Sensors.LightSensor.addListener((data) => {
+            setLightLevel(data.illuminance);
+        });
+
+        return () => {
+            subscription.remove();
+        };
+    }, []);
+
+
+    useEffect(() => {
+        if (isFocused) {
+            checkScreenCover(lightLevel);
+        }
+    }, [isFocused, lightLevel])
+
+
+    useEffect(() => {
+
+        if (lightLevel <= SCREEN_COVER_THRESHOLD) {
+            setIsScreenCovered(true);
+            setNotificationSent(false);
+        }
+
+        manageNotifications();
+    }, [lightLevel])
 
     const fetchBrightness = async () => {
         try {
@@ -37,18 +64,12 @@ const LightSensor = () => {
         }
     };
 
-    useEffect(() => {
-        if (isFocused) {
-            const subscription = Sensors.LightSensor.addListener((data) => {
-                setLightLevel(data.illuminance);
-                checkScreenCover(data.illuminance);
-            });
 
-            return () => {
-                subscription.remove();
-            };
+    const manageNotifications = () => {
+        if (lightLevel > 300 && !notificationSent) {
+            debounceNotification();
         }
-    }, [isFocused]);
+    }
 
     const checkScreenCover = async (illuminance) => {
         if (illuminance <= SCREEN_COVER_THRESHOLD) {
@@ -61,10 +82,6 @@ const LightSensor = () => {
                 setNotificationSent(false)
             }
             return;
-        }
-
-        if (illuminance > 1000 && !notificationSent) {
-            debounceNotification();
         }
 
         setIsScreenCovered(false);
