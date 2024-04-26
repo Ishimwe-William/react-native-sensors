@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet, Text, View, Alert} from 'react-native';
 import * as Brightness from 'expo-brightness';
 import * as Sensors from 'expo-sensors';
-import {LightGraph} from "./assets/NeedleGraph";
+import {LightGraph} from "./assets/LightLevelGraph";
 import {useIsFocused} from '@react-navigation/native';
 import {schedulePushNotification} from "./assets/Notification";
 

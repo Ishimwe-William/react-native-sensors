@@ -8,7 +8,7 @@ import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {StyleSheet, Text} from "react-native";
 
 export const LightGraph = ({lightLevel}) => {
-    const percentage = (lightLevel / 10000) * 100;
+    const percentage = (lightLevel / 30000) * 100;
 
     return (
         <>
@@ -28,7 +28,7 @@ export const LightGraph = ({lightLevel}) => {
                         <Text style={{fontSize: 44, margin: 35, fontFamily: 'sans-serif-light'}}>
                             {percentage ? percentage.toFixed(2) : 0}%
                         </Text>
-                        <Text>Range: 0 - 10,000 </Text>
+                        <Text>Range: 0 - 30,000 </Text>
                         <Text style={styles.lightLevel}>
                             Light level: {lightLevel.toFixed(2) + ' lux'}
                         </Text>
