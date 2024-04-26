@@ -63,7 +63,7 @@ const LightSensor = () => {
             return;
         }
 
-        if (illuminance > 300 && !notificationSent) {
+        if (illuminance > 1000 && !notificationSent) {
             debounceNotification();
         }
 
