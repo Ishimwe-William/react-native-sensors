@@ -1,15 +1,19 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet, Text, View, Alert, Button} from 'react-native';
+import {StyleSheet, Text, View, Alert} from 'react-native';
 import * as Brightness from 'expo-brightness';
 import * as Sensors from 'expo-sensors';
 import {LightGraph} from "./assets/NeedleGraph";
-import {SendLocalNotification} from "./assets/LocalNotification";
+import {useIsFocused} from '@react-navigation/native';
+import {schedulePushNotification} from "./assets/Notification";
 
 const LightSensor = () => {
     const [lightLevel, setLightLevel] = useState(0);
     const [isScreenCovered, setIsScreenCovered] = useState(false);
-    const SCREEN_COVER_THRESHOLD = 30;
+    const [notificationSent, setNotificationSent] = useState(false);
+    const SCREEN_COVER_THRESHOLD = 10;
+    const isFocused = useIsFocused();
     const currentBrightnessRef = useRef();
+    const debounceTimerRef = useRef(null);
 
     useEffect(() => {
         const requestPermissions = async () => {
@@ -34,29 +38,51 @@ const LightSensor = () => {
     };
 
     useEffect(() => {
-        const subscription = Sensors.LightSensor.addListener((data) => {
-            setLightLevel(data.illuminance);
-            checkScreenCover(data.illuminance);
-        });
+        if (isFocused) {
+            const subscription = Sensors.LightSensor.addListener((data) => {
+                setLightLevel(data.illuminance);
+                checkScreenCover(data.illuminance);
+            });
 
-        return () => {
-            subscription.remove();
-        };
-    }, []);
+            return () => {
+                subscription.remove();
+            };
+        }
+    }, [isFocused]);
 
     const checkScreenCover = async (illuminance) => {
         if (illuminance <= SCREEN_COVER_THRESHOLD) {
-            setIsScreenCovered(true);
-            await turnOffScreen();
+            try {
+                setIsScreenCovered(true);
+                await turnOffScreen();
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setNotificationSent(false)
+            }
             return;
         }
-        if (illuminance > 800 && illuminance < 1000) {
-            do {
-                await SendLocalNotification('Data from light sensor', 'The environment is too bright.');
-            } while (illuminance < 800);
+
+        if (illuminance > 300 && !notificationSent) {
+            debounceNotification();
         }
+
         setIsScreenCovered(false);
         await restoreBrightness()
+    };
+
+    const debounceNotification = () => {
+        try {
+            clearTimeout(debounceTimerRef.current);
+            debounceTimerRef.current = setTimeout(() => {
+                schedulePushNotification('Data from light sensor', 'The environment is too bright.');
+            }, 2000);
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setNotificationSent(true);
+        }
+
     };
 
     const restoreBrightness = async () => {

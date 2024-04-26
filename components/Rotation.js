@@ -34,7 +34,6 @@ export default function Rotation() {
         setOrientation(o.orientationInfo.orientation);
     };
 
-    console.log(orientation);
     return (
         <View style={{ flex: 1, marginTop: '10%', }}>
             <Text style={[styles.txt,{color: '#000', padding: 5}]}>ORIENTATION: {orientation}</Text>
