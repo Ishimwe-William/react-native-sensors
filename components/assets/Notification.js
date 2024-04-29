@@ -8,7 +8,7 @@ Notifications.setNotificationHandler({
     }),
 });
 
-export async function schedulePushNotification(title, message) {
+export async function SendPushNotification(title, message) {
     await Notifications.scheduleNotificationAsync({
         content: {
             title: title,

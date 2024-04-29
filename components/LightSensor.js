@@ -4,7 +4,7 @@ import * as Brightness from 'expo-brightness';
 import * as Sensors from 'expo-sensors';
 import {LightGraph} from "./assets/LightLevelGraph";
 import {useIsFocused} from '@react-navigation/native';
-import {schedulePushNotification} from "./assets/Notification";
+import {SendPushNotification} from "./assets/Notification";
 
 const LightSensor = () => {
     const [lightLevel, setLightLevel] = useState(0);
@@ -93,7 +93,7 @@ const LightSensor = () => {
         try {
             clearTimeout(debounceTimerRef.current);
             debounceTimerRef.current = setTimeout(() => {
-                schedulePushNotification('Data from light sensor', 'The environment is too bright.');
+                SendPushNotification('Sensors App - Light', 'The environment is too bright.');
             }, 2000);
         } catch (error) {
             console.error(error)
