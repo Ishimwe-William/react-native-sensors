@@ -28,16 +28,8 @@ const Compass = () => {
         <View style={styles.container}>
             <Text style={styles.title}>Compass</Text>
             <View style={styles.compassContainer}>
-                {/*<View*/}
-                {/*    style={[*/}
-                {/*        styles.needle,*/}
-                {/*        {*/}
-                {/*            transform: [{ rotateZ: `${needleRotation}deg` }],*/}
-                {/*        },*/}
-                {/*    ]}*/}
-                {/*/>*/}
                 <Image
-                    source={require('./assets/arrow-north.png')} // Update path to your arrow image
+                    source={require('./assets/arrow-north.png')}
                     style={[
                         styles.needle,
                         {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import * as Pedometer from 'expo-sensors';
+import * as Sensors from 'expo-sensors';
 
 const StepCounter = () => {
     const [steps, setSteps] = useState(0);
@@ -9,7 +9,7 @@ const StepCounter = () => {
     const [isStarted, setIsStarted] = useState(false);
 
     useEffect(() => {
-        const subscription = Pedometer.Pedometer.watchStepCount((result) => {
+        const subscription = Sensors.Pedometer.watchStepCount((result) => {
             if (!isStarted && result.steps > 50) {
                 setIsStarted(true);
             }

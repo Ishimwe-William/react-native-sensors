@@ -8,6 +8,7 @@ import LightSensor from './components/LightSensor';
 import Compass from './components/Compass';
 import Rotation from "./components/Rotation";
 import {createMaterialTopTabNavigator} from "@react-navigation/material-top-tabs";
+import {MotionAndSecurity} from "./components/MotionAndSecurity";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -15,28 +16,28 @@ const App = () => {
     return (
         <NavigationContainer>
             <Tab.Navigator
-            tabBarPosition="bottom"
-            screenOptions={{
-                tabBarShowLabel: false,
-                headerShown: false,
-                tabBarActiveTintColor: "tomato",
-                tabBarInactiveTintColor: "gray",
-                tabBarIndicatorStyle: {
-                    height: 1,
-                    backgroundColor: "tomato",
-                },
-                tabBarStyle: {
-                    height: '10%',
-                    borderTopWidth: 0.2,
-                    borderColor: "tomato",
-                },
-            }}
+                tabBarPosition="bottom"
+                screenOptions={{
+                    tabBarShowLabel: false,
+                    headerShown: false,
+                    tabBarActiveTintColor: "tomato",
+                    tabBarInactiveTintColor: "gray",
+                    tabBarIndicatorStyle: {
+                        height: 1,
+                        backgroundColor: "tomato",
+                    },
+                    tabBarStyle: {
+                        height: '10%',
+                        borderTopWidth: 0.2,
+                        borderColor: "tomato",
+                    },
+                }}
             >
                 <Tab.Screen
                     name="Step Counter"
                     component={StepCounter}
                     options={{
-                        tabBarIcon: ({color}) => <MaterialCommunity size={26} name="walk" color={color}/>,
+                        tabBarIcon: ({color}) => <MaterialCommunity size={26} name="motion-sensor" color={color}/>,
                     }}
                 />
                 <Tab.Screen
@@ -54,6 +55,14 @@ const App = () => {
                     }}
                 />
                 <Tab.Screen
+                    name="Motion And Security"
+                    component={MotionAndSecurity}
+                    options={{
+                        tabBarIcon: ({color}) => <MaterialCommunity size={24} name="phone-rotate-portrait"
+                                                                    color={color}/>,
+                    }}
+                />
+                <Tab.Screen
                     name="Compass"
                     component={Compass}
                     options={{
@@ -64,7 +73,7 @@ const App = () => {
                     name="Rotation"
                     component={Rotation}
                     options={{
-                        tabBarIcon: ({color}) => <MaterialCommunity size={24} name="phone-rotate-portrait" color={color}/>,
+                        tabBarIcon: ({color}) => <MaterialCommunity size={26} name="web" color={color}/>,
                     }}
                 />
             </Tab.Navigator>
