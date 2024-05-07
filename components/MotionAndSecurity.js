@@ -3,16 +3,13 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Accelerometer} from 'expo-sensors';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import {SendPushNotification} from "./assets/Notification";
+import {BarGraph} from "./assets/graphs";
 
 export const MotionAndSecurity = () => {
     const [acceleration, setAcceleration] = useState({x: 0, y: 0, z: 0});
     const [subscription, setSubscription] = useState(null);
     const [magnitude, setMagnitude] = useState(0);
-    const [vibrated, setVibrated] = useState(false);
-    const SHAKE_THRESHOLD = 1.5;
-
-    const _slow = () => Accelerometer.setUpdateInterval(1000);
-    const _fast = () => Accelerometer.setUpdateInterval(16);
+    const SHAKE_THRESHOLD = 2.5;
 
     useEffect(() => {
         _subscribe();
@@ -21,6 +18,7 @@ export const MotionAndSecurity = () => {
 
     const _subscribe = () => {
         setSubscription(Accelerometer.addListener(setAcceleration));
+        Accelerometer.setUpdateInterval(1000);
     };
 
     const _unsubscribe = () => {
@@ -33,9 +31,9 @@ export const MotionAndSecurity = () => {
         setMagnitude(Math.sqrt((x ** 2 + y ** 2 + z ** 2)))
     }
 
-    const checkVibrationState = () => {
+    const checkVibrationState = async () => {
         if (magnitude > SHAKE_THRESHOLD)
-            SendPushNotification('Sensors App - Accelerometer','We noticed a movement of shaking!')
+           await SendPushNotification('Sensors App - Accelerometer','We noticed a movement of shaking!')
     }
     const changeOrientation = async () => {
         const {x, y} = acceleration;
@@ -49,29 +47,45 @@ export const MotionAndSecurity = () => {
     };
 
     useEffect(() => {
-        changeOrientation();
+        changeOrientation().then();
         calculateMagnitude();
-        checkVibrationState()
+        checkVibrationState().then()
     }, [acceleration]);
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Accelerometer</Text>
-            <Text style={styles.text}>Accelerometer Data:</Text>
-            <Text style={styles.text}>x: {acceleration.x.toFixed(5)}</Text>
-            <Text style={styles.text}>y: {acceleration.y.toFixed(5)}</Text>
-            <Text style={styles.text}>z: {acceleration.z.toFixed(5)}</Text>
-            <Text style={styles.text}>magnitude: {magnitude.toFixed(5)}</Text>
-            <Text style={styles.text}>Vibrated? {vibrated?'True':'False'}</Text>
+            <View style={styles.table}>
+                <View style={styles.row}>
+                    <Text style={[styles.cell,{fontWeight: 'bold'}]}>Axis</Text>
+                    <Text style={[styles.cell,{fontWeight: 'bold'}]}>Value</Text>
+                </View>
+                <View style={styles.row}>
+                    <Text style={styles.cell}>x</Text>
+                    <Text style={styles.cell}>{acceleration.x.toFixed(6)}</Text>
+                </View>
+                <View style={styles.row}>
+                    <Text style={styles.cell}>y</Text>
+                    <Text style={styles.cell}>{acceleration.y.toFixed(6)}</Text>
+                </View>
+                <View style={styles.row}>
+                    <Text style={styles.cell}>z</Text>
+                    <Text style={styles.cell}>{acceleration.z.toFixed(6)}</Text>
+                </View>
+                <View style={styles.row}>
+                    <Text style={styles.cell}>Magnitude</Text>
+                    <Text style={styles.cell}>{magnitude.toFixed(6)}</Text>
+                </View>
+            </View>
+            <View style={{ padding: 3, marginTop:5 }}>
+                <BarGraph acceleration={acceleration} />
+            </View>
+
             <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={subscription ? _unsubscribe : _subscribe} style={styles.button}>
+                <TouchableOpacity
+                    onPress={subscription ? _unsubscribe : _subscribe}
+                    style={styles.button}>
                     <Text>{subscription ? 'Stop' : 'Start'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={_slow} style={[styles.button, styles.middleButton]}>
-                    <Text>Slow</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={_fast} style={styles.button}>
-                    <Text>Fast</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -97,17 +111,30 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#eee',
-        padding: 10,
-    },
-    middleButton: {
-        borderLeftWidth: 1,
-        borderRightWidth: 1,
-        borderColor: '#ccc',
+        padding: 8,
     },
     title: {
+        marginTop:20,
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
+        textAlign: 'center',
+    },
+    table: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    row: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderColor: '#ccc',
+    },
+    cell: {
+        flex: 1,
+        padding: 4,
         textAlign: 'center',
     },
 });
