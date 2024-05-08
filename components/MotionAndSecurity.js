@@ -3,7 +3,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Accelerometer} from 'expo-sensors';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import {SendPushNotification} from "./assets/Notification";
-import {BarGraph} from "./assets/graphs";
+import {BarGraph} from "./assets/BarChartGraph";
 
 export const MotionAndSecurity = () => {
     const [acceleration, setAcceleration] = useState({x: 0, y: 0, z: 0});
