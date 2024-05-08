@@ -162,7 +162,7 @@ const GPSTracker = () => {
                             longitude: location.coords.longitude,
                         }}
                         title="You are here"
-                        description="Your current location"
+                        description={`Your current location: (${location.coords.latitude.toFixed(4)}, ${location.coords.longitude.toFixed(4)})`}
                     />
                     <Circle
                         center={{
