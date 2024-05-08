@@ -1,18 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker, Circle, Polygon, Polyline } from 'react-native-maps';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import MapView, {Circle, Marker, Polygon, Polyline} from 'react-native-maps';
 import * as Location from 'expo-location';
+import {SendPushNotification} from "./assets/Notification";
+
+const geofenceRegions = [
+    {
+        id: 'home',
+        latitude: -1.9626,
+        longitude: 30.0475,
+        radius: 100,
+    },
+    {
+        id: 'work',
+        latitude: -1.9639,
+        longitude: 30.0601,
+        radius: 200,
+    },
+    {
+        id: 'ampersand',
+        latitude: -1.9720,
+        longitude: 30.0852,
+        radius: 200,
+    },
+];
 
 const GPSTracker = () => {
     const [location, setLocation] = useState(null);
     const [mapType, setMapType] = useState('standard');
     const [distance, setDistance] = useState(0);
-    let lineEdge1= 0.001;
-    let lineEdge2= 0.001;
+    const [currentRegion, setCurrentRegion] = useState(null);
+    let lineEdge1 = 0.001;
+    let lineEdge2 = 0.001;
 
     useEffect(() => {
         (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
+            let {status} = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 console.error('Permission to access location was denied');
                 return;
@@ -20,6 +43,21 @@ const GPSTracker = () => {
 
             let currentLocation = await Location.getCurrentPositionAsync({});
             setLocation(currentLocation);
+
+            const locationSubscription = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.High,
+                    distanceInterval: 10,
+                },
+                (newLocation) => {
+                    setLocation(newLocation);
+                    checkGeofenceRegions(newLocation.coords);
+                }
+            );
+
+            return () => {
+                locationSubscription.remove();
+            };
         })();
     }, []);
 
@@ -40,27 +78,63 @@ const GPSTracker = () => {
         return totalDistance;
     };
 
-    const calculateDistanceBetweenPoints = (lat1, lon1, lat2, lon2) => {
-        const R = 6371e3; // Earth radius in meters
-        const φ1 = lat1 * (Math.PI / 180);
-        const φ2 = lat2 * (Math.PI / 180);
-        const Δφ = (lat2 - lat1) * (Math.PI / 180);
-        const Δλ = (lon2 - lon1) * (Math.PI / 180);
 
-        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const [nearbyRegion, setNearbyRegion] = useState(null);
+
+    const checkGeofenceRegions = (coords) => {
+        geofenceRegions.forEach((region) => {
+            const distance = calculateDistanceBetweenPoints(
+                coords.latitude,
+                coords.longitude,
+                region.latitude,
+                region.longitude
+            );
+
+            if (distance <= region.radius) {
+                if (currentRegion !== region.id) {
+                    setCurrentRegion(region.id);
+                    const message = `Entered ${region.id} region`
+                    SendPushNotification('Sensors App - Map Location', message)
+                }
+            } else if (distance <= region.radius + 100) {
+                if (nearbyRegion !== region.id) {
+                    setNearbyRegion(region.id);
+                    const message = `Near ${region.id} region`
+                    SendPushNotification('Sensors App - Map Location', message)
+                }
+            } else {
+                if (currentRegion === region.id) {
+                    setCurrentRegion(null);
+                    const message = `Left ${region.id} region`
+                    SendPushNotification('Sensors App - Map Location', message)
+                }
+                if (nearbyRegion === region.id) {
+                    setNearbyRegion(null);
+                }
+            }
+        });
+    };
+
+    const calculateDistanceBetweenPoints = (lat1, lon1, lat2, lon2) => {
+        const R = 6371e3;
+        const q1 = lat1 * (Math.PI / 180);
+        const q2 = lat2 * (Math.PI / 180);
+        const Dq = (lat2 - lat1) * (Math.PI / 180);
+        const Dr = (lon2 - lon1) * (Math.PI / 180);
+
+        const a = Math.sin(Dq / 2) * Math.sin(Dq / 2) +
+            Math.cos(q1) * Math.cos(q2) *
+            Math.sin(Dr / 2) * Math.sin(Dr / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        const distance = R * c; // Distance in meters
-        return distance;
+        return R * c;
     };
 
     useEffect(() => {
         if (location) {
             const coordinates = [
-                { latitude: location.coords.latitude, longitude: location.coords.longitude },
-                { latitude: location.coords.latitude + lineEdge1, longitude: location.coords.longitude + lineEdge2 },
+                {latitude: location.coords.latitude, longitude: location.coords.longitude},
+                {latitude: location.coords.latitude + lineEdge1, longitude: location.coords.longitude + lineEdge2},
             ];
             const calculatedDistance = calculateDistance(coordinates);
             setDistance(calculatedDistance);
@@ -101,18 +175,21 @@ const GPSTracker = () => {
                     />
                     <Polygon
                         coordinates={[
-                            { latitude: location.coords.latitude + 0.001, longitude: location.coords.longitude - 0.001 },
-                            { latitude: location.coords.latitude - 0.001, longitude: location.coords.longitude - 0.001 },
-                            { latitude: location.coords.latitude - 0.001, longitude: location.coords.longitude + 0.001 },
-                            { latitude: location.coords.latitude + 0.001, longitude: location.coords.longitude + 0.001 },
+                            {latitude: location.coords.latitude + 0.001, longitude: location.coords.longitude - 0.001},
+                            {latitude: location.coords.latitude - 0.001, longitude: location.coords.longitude - 0.001},
+                            {latitude: location.coords.latitude - 0.001, longitude: location.coords.longitude + 0.001},
+                            {latitude: location.coords.latitude + 0.001, longitude: location.coords.longitude + 0.001},
                         ]}
                         strokeColor="rgba(255, 0, 0, 0.5)"
                         fillColor="rgba(255, 0, 0, 0.2)"
                     />
                     <Polyline
                         coordinates={[
-                            { latitude: location.coords.latitude, longitude: location.coords.longitude },
-                            { latitude: location.coords.latitude + lineEdge1, longitude: location.coords.longitude + lineEdge2 },
+                            {latitude: location.coords.latitude, longitude: location.coords.longitude},
+                            {
+                                latitude: location.coords.latitude + lineEdge1,
+                                longitude: location.coords.longitude + lineEdge2
+                            },
                         ]}
                         strokeColor="#ff0000"
                         strokeWidth={2}
